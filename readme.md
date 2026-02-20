@@ -1,199 +1,133 @@
-##
-Dulce Ambrosio - 231143
-/ Sistemas Operativos
-# Laboratorio de Sistemas Operativos
+# Laboratorio 2 de Sistemas Operativos
 
-## Resumen 
-
-Este laboratorio se realizó en un entorno virtualizado utilizando Ubuntu Linux en VirtualBox, con el objetivo de comprender los servicios que ofrece el sistema operativo, la interacción entre espacio de usuario y kernel, y el proceso de modificación y compilación de un kernel moderno de Linux.
+**Dulce Ambrosio - 231143**  
+Universidad del Valle de Guatemala  
+Sistemas Operativos - Semestre 7
 
 ---
 
-## Ejercicio 1:
+## Descripción
 
-En este ejercicio se analizaron los procesos y servicios básicos que ofrece el sistema operativo Linux. Se trabajó principalmente con comandos de la terminal para observar el estado del sistema, destacando el uso de herramientas como `top`, que permite visualizar los procesos activos y su consumo de recursos. A través de este comando se identificó el proceso con identificador 1 (PID 1).
+este laboratorio reforzará el concepto de proceso, terminación, relación padre-hijo y cambio
+de contexto. También se implementarán tres medios comunes de comunicación entre procesos: memoria
+compartida, pipes ordinarios y pipes nombrados. Es obligatorio el uso de estos tres medios de
+comunicación entre procesos. Deberá entregar un documento con las respuestas a las preguntas
+planteadas en cada ejercicio (incluyendo diagramas o escaneos si es necesario), junto con todos los
+archivos de código que programe.
 
-### Programas
-
-1. **Ejercicio1_Hello.c**: Programa simple que imprime "Hello World" y su PID.
-2. **Ejercicio2_Fork.c**: Programa que demuestra el uso de `fork()` y `execl()` para crear procesos hijo.
-
-### Compilación
-
-```bash
-cd Ejercicio1
-gcc Ejercicio1_Hello.c -o Ejercicio1_Hello
-gcc Ejercicio2_Fork.c -o Ejercicio2_Fork
-```
-
-### Ejecución
-
-**Programa Hello World:**
-```bash
-./Ejercicio1_Hello
-```
-Salida esperada: Imprime "Hello World!" seguido del PID del proceso.
-
-**Programa Fork:**
-```bash
-./Ejercicio2_Fork
-```
-Salida esperada: Se crean dos procesos (padre e hijo), cada uno ejecuta `Ejercicio1_Hello` y muestra su PID correspondiente.
 
 ---
 
-## Ejercicio 2: 
+## Estructura del Proyecto
 
-El segundo ejercicio se enfocó en el análisis de las llamadas al sistema (syscalls), que son el mecanismo mediante el cual los programas en espacio de usuario solicitan servicios al kernel.
-
-Para ello se utilizó la herramienta `strace`, que permite observar en tiempo real las llamadas al sistema realizadas por un proceso. A partir de la ejecución y análisis de `strace`, se identificaron distintos servicios provistos por el sistema operativo, tales como:
-
-* **Gestión de archivos**: llamadas como `open`, `read`, `write` y `close`.
-* **Gestión de procesos**: llamadas relacionadas con la creación y control de procesos.
-* **Comunicación con el kernel**: operaciones internas que el sistema realiza automáticamente para ejecutar programas.
-
-### Programa
-
-**Ejercicio2_Copiar.c**: Programa que copia el contenido de un archivo a otro utilizando llamadas al sistema de bajo nivel (`open`, `read`, `write`, `close`).
-
-### Compilación
-
-```bash
-cd Ejercicio2
-gcc Ejercicio2_Copiar.c -o Ejercicio2_Copiar
 ```
-
-### Ejecución
-
-**Copia básica:**
-```bash
-./Ejercicio2_Copiar origen.txt destino.txt
+Sistemas_Operativos/
+│
+├── Ejercicio1/          # Creación masiva de procesos
+│   ├── foks_consecutivos.c
+│   └── fork_dentroFor.c
+│
+├── Ejercicio2/          # Comparación secuencial vs concurrente
+│   ├── primer_programa.c
+│   └── segundo_programa.c
+│
+├── Ejercicio3/          # Concurrencia con salida intensiva
+│   ├── primer_programa.c
+│   └── segundo_programa.c
+│
+├── Ejercicio4/          # Procesos zombie y huérfanos
+│   ├── fork_ejercicio4.c
+│   └── ejercicio4_modificado.c
+│
+├── Ejercicio5/          # Comunicación entre procesos (IPC)
+│   ├── ipc.c
+│   └── Segundo_Programa.c
+│
+└── readme.md
 ```
-
-**Análisis con strace:**
-```bash
-strace ./Ejercicio2_Copiar origen.txt destino.txt
-```
-
-Con `strace` se pueden observar todas las llamadas al sistema que realiza el programa, como:
-- `open()`: para abrir archivos
-- `read()`: para leer del archivo origen
-- `write()`: para escribir al archivo destino
-- `close()`: para cerrar los descriptores de archivo
 
 ---
 
-## Ejercicio 3: 
+## Ejercicios
 
-En el tercer ejercicio se realizó la parte más avanzada del laboratorio: la modificación y recompilación de un kernel Linux moderno (versión 6.x).
+### Ejercicio 1: Creación Masiva de Procesos
 
-Debido a que la guía original estaba basada en kernels antiguos (2.6.x), fue necesario adaptar el procedimiento a la arquitectura actual. Se comenzó asegurando el entorno mediante un snapshot de la máquina virtual. Posteriormente, se descargó el código fuente del kernel y se configuró el entorno de compilación instalando las dependencias necesarias.
+**Objetivo:** Comparar diferentes formas de crear múltiples procesos con `fork()` y analizar el número de procesos generados.
 
-Durante el proceso se ajustaron configuraciones de seguridad del kernel (claves de confianza, firmas y opciones de depuración) para permitir la compilación en Ubuntu moderno. Una vez compilado e instalado el kernel, se reinició el sistema y se seleccionó el nuevo kernel desde el gestor de arranque.
 
-### Programas
 
-1. **mycall.c**: Implementación de una syscall personalizada en el kernel que recibe un entero, lo imprime en el log del kernel y devuelve el valor + 10.
-2. **prueba.c**: Programa de espacio de usuario que invoca la syscall personalizada.
 
-### Pasos resumidos para implementar la syscall personalizada
+### Ejercicio 2: Ejecución Secuencial vs Concurrente
 
-#### 1. Preparación del entorno
+**Objetivo:** Comparar el tiempo de ejecución entre procesamiento secuencial y concurrente usando procesos múltiples.
 
-```bash
-# Instalar dependencias necesarias
-sudo apt-get update
-sudo apt-get install build-essential libncurses-dev bison flex libssl-dev libelf-dev
 
-# Descargar código fuente del kernel
-cd /usr/src
-sudo wget https://cdn.kernel.org/pub/linux/kernel/v6.x/linux-6.x.tar.xz
-sudo tar -xvf linux-6.x.tar.xz
-cd linux-6.x
-```
+### Ejercicio 3: Concurrencia con Salida Intensiva
 
-#### 2. Agregar la syscall al kernel
+**Objetivo:** Analizar el impacto de operaciones de I/O (escritura a terminal) en ejecución secuencial vs concurrente.
 
-**Editar el archivo de syscalls:**
-```bash
-sudo nano arch/x86/entry/syscalls/syscall_64.tbl
-```
 
-Agregar al final:
-```
-470    common  mycall          sys_mycall
-```
+### Ejercicio 4: Procesos Zombie y Huérfanos
 
-**Agregar el prototipo:**
-```bash
-sudo nano include/linux/syscalls.h
-```
+**Objetivo:** Reproducir y analizar los estados especiales de procesos en Linux.
 
-Agregar antes del `#endif`:
-```c
-asmlinkage long sys_mycall(int i);
-```
+### Ejercicio 5: Comunicación Entre Procesos (IPC)
 
-**Copiar mycall.c al kernel:**
-```bash
-sudo cp /ruta/a/Ejercicio3/mycall.c kernel/
-```
+**Objetivo:** Implementar comunicación entre procesos usando pipes y memoria compartida.
 
-**Modificar el Makefile:**
-```bash
-sudo nano kernel/Makefile
-```
 
-Agregar `mycall.o` a la línea de `obj-y`.
+---
 
-#### 3. Compilar e instalar el kernel
+## Compilación y Ejecución
+
+### Compilación General
 
 ```bash
-# Configurar el kernel
-sudo make menuconfig
-# (Desactivar opciones de firma y certificados si es necesario)
-
-# Compilar (puede tardar varias horas)
-sudo make -j$(nproc)
-sudo make modules_install
-sudo make install
-
-# Actualizar GRUB
-sudo update-grub
-
-# Reiniciar y seleccionar el nuevo kernel
-sudo reboot
+gcc -o nombre_ejecutable archivo.c
 ```
 
-#### 4. Compilación del programa de prueba
+### Ejercicio 1
 
 ```bash
-cd Ejercicio3
-gcc prueba.c -o prueba
+gcc -o forks_consecutivos Ejercicio1/foks_consecutivos.c
+./forks_consecutivos
+
+gcc -o fork_for Ejercicio1/fork_dentroFor.c
+./fork_for
 ```
 
-#### 5. Ejecución
+### Ejercicio 2 y 3
 
 ```bash
-./prueba
+gcc -o secuencial Ejercicio2/primer_programa.c
+./secuencial
+
+gcc -o concurrente Ejercicio2/segundo_programa.c
+./concurrente
 ```
 
-Salida esperada en consola:
-```
-Resultado devuelto por kernel: 60
-```
+### Ejercicio 4
 
-Para verificar el mensaje del kernel:
 ```bash
-dmesg | tail
+gcc -o zombie Ejercicio4/fork_ejercicio4.c
+./zombie &
+ps -ael | grep Z
+
+gcc -o zombie_mod Ejercicio4/ejercicio4_modificado.c
+./zombie_mod
 ```
 
-Debe aparecer:
-```
-Hola desde el Kernel! Recibi: 50
-```
+### Ejercicio 5
 
+```bash
+# Compilar con soporte de memoria compartida
+gcc -o ipc Ejercicio5/ipc.c -lrt
+./ipc 4 X
 
+# Compilar y ejecutar coordinador
+gcc -o coordinador Ejercicio5/Segundo_Programa.c
+./coordinador
+```
 
 ---
 
