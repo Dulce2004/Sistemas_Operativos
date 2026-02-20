@@ -2,7 +2,7 @@
 
 **Dulce Ambrosio - 231143**  
 Universidad del Valle de Guatemala  
-Sistemas Operativos - Semestre 7
+Sistemas Operativos - CC3064
 
 ---
 
