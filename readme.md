@@ -1,4 +1,4 @@
-# Laboratorio 2 de Sistemas Operativos
+# Laboratorio #3
 
 **Dulce Ambrosio - 231143**  
 Universidad del Valle de Guatemala  
@@ -6,127 +6,96 @@ Sistemas Operativos - CC3064
 
 ---
 
-## Descripción
+## Descripcion
 
-este laboratorio reforzará el concepto de proceso, terminación, relación padre-hijo y cambio
-de contexto. También se implementarán tres medios comunes de comunicación entre procesos: memoria
-compartida, pipes ordinarios y pipes nombrados. Es obligatorio el uso de estos tres medios de
-comunicación entre procesos. Deberá entregar un documento con las respuestas a las preguntas
-planteadas en cada ejercicio (incluyendo diagramas o escaneos si es necesario), junto con todos los
-archivos de código que programe.
-
+Este proyecto valida un Sudoku 9x9 usando memoria mapeada, `fork()`, `pthread` y OpenMP. Se incluyen cuatro versiones con diferentes estrategias de paralelizacion para comparar comportamiento y salida de hilos/procesos.
 
 ---
 
-## Estructura del Proyecto
+## Estructura del proyecto
 
 ```
 Sistemas_Operativos/
 │
-├── Ejercicio1/          # Creación masiva de procesos
-│   ├── foks_consecutivos.c
-│   └── fork_dentroFor.c
-│
-├── Ejercicio2/          # Comparación secuencial vs concurrente
-│   ├── primer_programa.c
-│   └── segundo_programa.c
-│
-├── Ejercicio3/          # Concurrencia con salida intensiva
-│   ├── primer_programa.c
-│   └── segundo_programa.c
-│
-├── Ejercicio4/          # Procesos zombie y huérfanos
-│   ├── fork_ejercicio4.c
-│   └── ejercicio4_modificado.c
-│
-├── Ejercicio5/          # Comunicación entre procesos (IPC)
-│   ├── ipc.c
-│   └── Segundo_Programa.c
-│
+├── SudokuValidator1.c
+├── SudokuValidator2.c
+├── SudokuValidator3.c
+├── SudokuValidator4.c
 └── readme.md
 ```
 
 ---
 
-## Ejercicios
+## Formato de entrada
 
-### Ejercicio 1: Creación Masiva de Procesos
+- Archivo de 81 caracteres con digitos del 1 al 9, sin espacios ni saltos de linea.
+- El archivo se lee con `mmap()` y se carga a una matriz 9x9.
 
-**Objetivo:** Comparar diferentes formas de crear múltiples procesos con `fork()` y analizar el número de procesos generados.
+---
 
+## Versiones
 
+### SudokuValidator1.c
 
+- Subcuadros 3x3: secuencial.
+- Columnas: un `pthread` (sin OpenMP).
+- Filas: secuencial.
+- Usa `fork()` para mostrar procesos antes y despues del `pthread` con `ps`.
 
-### Ejercicio 2: Ejecución Secuencial vs Concurrente
+### SudokuValidator2.c
 
-**Objetivo:** Comparar el tiempo de ejecución entre procesamiento secuencial y concurrente usando procesos múltiples.
+- Subcuadros 3x3: `#pragma omp parallel for`.
+- Columnas: `pthread` + OpenMP en el `for`.
+- Filas: OpenMP en el `for`.
 
+### SudokuValidator3.c
 
-### Ejercicio 3: Concurrencia con Salida Intensiva
+- Igual a la version 2, pero con `schedule(dynamic)`.
+- `omp_set_num_threads(1)` fuerza ejecucion serial de OpenMP.
 
-**Objetivo:** Analizar el impacto de operaciones de I/O (escritura a terminal) en ejecución secuencial vs concurrente.
+### SudokuValidator4.c
 
-
-### Ejercicio 4: Procesos Zombie y Huérfanos
-
-**Objetivo:** Reproducir y analizar los estados especiales de procesos en Linux.
-
-### Ejercicio 5: Comunicación Entre Procesos (IPC)
-
-**Objetivo:** Implementar comunicación entre procesos usando pipes y memoria compartida.
+- OpenMP anidado (`omp_set_nested(1)`).
+- `omp_set_num_threads(9)` para 9 columnas y trabajo del `main`.
+- Columnas y filas paralelizadas con OpenMP.
 
 
 ---
 
-## Compilación y Ejecución
+## Compilacion y ejecucion
 
-### Compilación General
+### Compilacion general
 
 ```bash
 gcc -o nombre_ejecutable archivo.c
 ```
 
-### Ejercicio 1
+### Version 1
 
 ```bash
-gcc -o forks_consecutivos Ejercicio1/foks_consecutivos.c
-./forks_consecutivos
-
-gcc -o fork_for Ejercicio1/fork_dentroFor.c
-./fork_for
+gcc -o validator1 SudokuValidator1.c -pthread
+./validator1 sudoku.c
 ```
 
-### Ejercicio 2 y 3
+### Version 2
 
 ```bash
-gcc -o secuencial Ejercicio2/primer_programa.c
-./secuencial
-
-gcc -o concurrente Ejercicio2/segundo_programa.c
-./concurrente
+gcc -o validator2 SudokuValidator2.c -pthread -fopenmp
+./validator2 sudoku.c
 ```
 
-### Ejercicio 4
+### Version 3
 
 ```bash
-gcc -o zombie Ejercicio4/fork_ejercicio4.c
-./zombie &
-ps -ael | grep Z
-
-gcc -o zombie_mod Ejercicio4/ejercicio4_modificado.c
-./zombie_mod
+gcc -o validator3 SudokuValidator3.c -pthread -fopenmp
+./validator3 sudoku.c
 ```
 
-### Ejercicio 5
+### Version 4
 
 ```bash
-# Compilar con soporte de memoria compartida
-gcc -o ipc Ejercicio5/ipc.c -lrt
-./ipc 4 X
-
-# Compilar y ejecutar coordinador
-gcc -o coordinador Ejercicio5/Segundo_Programa.c
-./coordinador
+gcc -o validator4 SudokuValidator4.c -pthread -fopenmp
+./validator4 sudoku.c
 ```
 
 ---
